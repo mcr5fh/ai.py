@@ -87,14 +87,6 @@ python scrape_reddit.py --subreddit "whoop" --search_string "Strength Builder"
 python scrape_reddit.py --subreddit "whoop" --search_string "Strength Builder" --time "month"
 ```
 
-You can also scrape a single post and its comments using the `--post_id` option:
-
-```bash
-python scrape_reddit.py --post_id "your_post_id"
-```
-
-Replace `your_post_id` with the ID of the post you want to scrape.
-
 ## Copying Results to Clipboard
 
 To copy the results to the clipboard, use the `--copy_to_clipboard` flag:
