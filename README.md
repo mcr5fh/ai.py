@@ -24,6 +24,17 @@ pip install -r requirements.txt
 
 # Reddit Scraper
 
+**NOTE: You have to have a reddit dev account set up. You can follow that here: https://github.com/reddit-archive/reddit/wiki/OAuth2
+
+Then put that in a `.env` file like so: 
+
+```bash
+# Reddit API credentials
+REDDIT_CLIENT_ID="aaaaaa"
+REDDIT_SECRET="bbbbbb"
+REDDIT_USER_AGENT="reddit script by u/whoever"
+```
+
 You can run the scraper using the following command:
 
 ```bash
