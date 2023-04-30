@@ -27,7 +27,7 @@ pip install -r requirements.txt
 You can run the scraper using the following command:
 
 ```bash
-python scrape_reddit.py --subreddit "your_subreddit" --time "your_time_filter" --search_string "your_search_string" --exclude_user "username_to_exclude"
+python scrape_reddit.py --subreddit "your_subreddit" --time "your_time_filter" --search_string "your_search_string" --exclude_user "username_to_exclude" --copy_to_clipboard
 ```
 
 Replace the following placeholders with your desired values:
@@ -36,6 +36,7 @@ Replace the following placeholders with your desired values:
 - `your_time_filter`: The time filter for the search (all, day, hour, month, week, or year).
 - `your_search_string`: The search string for filtering posts (optional).
 - `username_to_exclude`: Exclude comments from a specific user (optional).
+- `copy_to_clipboard`: Copy the results to your clipboard.
 
 You can also scrape a single post and its comments using the `--post_id` option:
 
