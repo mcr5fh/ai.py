@@ -35,19 +35,57 @@ REDDIT_SECRET="bbbbbb"
 REDDIT_USER_AGENT="reddit script by u/whoever"
 ```
 
-You can run the scraper using the following command:
+## About
+This is a wrapper around the PRAW Reddit sdk here: https://praw.readthedocs.io/en/stable/getting_started/quick_start.html
 
+### CLI
 ```bash
-python scrape_reddit.py --subreddit "your_subreddit" --time "your_time_filter" --search_string "your_search_string" --exclude_user "username_to_exclude" --copy_to_clipboard
+Usage: scrape_reddit.py [OPTIONS]
+
+Options:
+  --subreddit TEXT                Subreddit to scrape
+  --time [all|day|hour|month|week|year]
+                                  Time-from-now filter for the search (default: week)
+  --post_id TEXT                  Post ID to scrape
+  --copy_to_clipboard             copy the comments to your clipboard
+  --search_string TEXT            Search string (optional)
+  --exclude_user TEXT             Exclude comments from a specific user
+                                  (optional)
+  --max_posts INTEGER             Max numbers of posts to search within
+                                  subreddit
+  --help                          Show this message and exit.
 ```
 
-Replace the following placeholders with your desired values:
+### Scrape a Single Post
 
-- `your_subreddit`: The subreddit you want to scrape.
-- `your_time_filter`: The time filter for the search (all, day, hour, month, week, or year).
-- `your_search_string`: The search string for filtering posts (optional).
-- `username_to_exclude`: Exclude comments from a specific user (optional).
-- `copy_to_clipboard`: Copy the results to your clipboard.
+To scrape a single post and its comments, you will need the post ID. You can find the post ID in the URL of the post. It is usually a 6-character alphanumeric string. For example, in the URL `https://www.reddit.com/r/whoop/comments/102df41/rwhoop_team_created/`, the post ID is `102df41`.
+
+Use the `--post_id` option to specify the post ID:
+
+```bash
+python scrape_reddit.py --post_id "102df41"
+```
+
+(Optional) To exclude comments from a specific user, use the `--exclude_user` option:
+
+```bash
+python scrape_reddit.py --post_id "102df41" --exclude_user "username_to_exclude"
+```
+
+
+### Search a Subreddit
+
+To search Reddit for posts in a specific subreddit, use the `--subreddit` option, and you must pass a `--search_string` as well:
+
+```bash
+python scrape_reddit.py --subreddit "whoop" --search_string "Strength Builder"
+```
+
+(Optional) To specify a time frame "from now" for the search, use the `--time` option. Available time frames are "all", "day", "hour", "month", "week", or "year". For example, passing in "month" searches all posts within the past month. 
+
+```bash
+python scrape_reddit.py --subreddit "whoop" --search_string "Strength Builder" --time "month"
+```
 
 You can also scrape a single post and its comments using the `--post_id` option:
 
@@ -57,7 +95,15 @@ python scrape_reddit.py --post_id "your_post_id"
 
 Replace `your_post_id` with the ID of the post you want to scrape.
 
-### Example
+## Copying Results to Clipboard
+
+To copy the results to the clipboard, use the `--copy_to_clipboard` flag:
+
+```bash
+python scrape_reddit.py --subreddit "your_subreddit" --copy_to_clipboard
+```
+
+### Real Example
 ```bash
 (ai.py.venv) ➜  ai.py git:(main) ✗ python3 scrape_reddit.py --post_id 130mgyl --exclude_user whoop_official  --copy_to_clipboard
 2023-04-30T19:28:15Z - INFO - Scraping subreddit None with time filter week and search string None

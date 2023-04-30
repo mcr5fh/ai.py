@@ -50,38 +50,27 @@ def scrape_single_post(post_id, exclude_user):
     comments = parse_comments(post, exclude_user)
     return comments
 
-def search_subreddit(subreddit_name, time_filter, search_string, exclude_user, search_limit=100):
+def search_subreddit(subreddit_name, time_filter, search_string, exclude_user, max_posts=5):
     subreddit = reddit.subreddit(subreddit_name)
     # These are lazily loaded
     search_results = subreddit.search(
-        search_string, sort="hot", time_filter=time_filter, limit=search_limit
+        search_string, sort="hot", time_filter=time_filter, limit=max_posts
     )
 
-    feedback = []
-    logger.info(f"Found {len(search_results.list())} search results")
+    comments = []
     for post in search_results:
-        post_feedback = analyze_post(post)
-        feedback.extend(post_feedback)
+        post_comments = parse_comments(post, exclude_user)
+        comments.extend(post_comments)
+    logger.info(f"Found {len(comments)} search results")
 
-    print(str(feedback))
-    # summary = summarize_feedback(feedback)
-    # return summary
-
-
-def analyze_post(post):
-    # Analyze the post using OpenAI API (you can change this to use other methods)
-    post_title = post.title
-    comments = post.comments.replace_more(limit=None)  # list()
-
-    # Process each comment
-    feedback = []
-
-
+    print(str(comments))
+    return comments
+    
 def parse_comments(post, exclude_user):
     post.comments.replace_more(limit=None)
     comments = post.comments.list()
     comment_list = []
-    logger.info("Number of comments for : " + post.title + " " + str(len(comments)))
+    logger.info(f"Found {str(len(comments))} comments for post with title: {post.title}")
     for comment in comments:
         if isinstance(comment, MoreComments):
             logger.debug("Got a MoreComments")
@@ -94,17 +83,6 @@ def parse_comments(post, exclude_user):
         comment_list.append(comment.body)
     logger.info(f"Found total comments {str(len(comment_list))}")
     return comment_list
-
-    # Return a list of feedback extracted from the post
-    return feedback
-
-
-def summarize_feedback(feedback):
-    # Summarize the feedback to get the top 5 liked and disliked items
-    # ...
-
-    return summary
-
 
 @click.command()
 @click.option("--subreddit", help="Subreddit to scrape")
@@ -119,14 +97,16 @@ def summarize_feedback(feedback):
 @click.option("--copy_to_clipboard", is_flag=True, help="copy the comments to your clipboard")
 @click.option("--search_string", default=None, help="Search string (optional)")
 @click.option('--exclude_user', default=None, help='Exclude comments from a specific user (optional)')
-def main(subreddit, time_filter, post_id, copy_to_clipboard, search_string, exclude_user):
+@click.option("--max_posts", default=5, help="Max numbers of posts to search within subreddit")
+def main(subreddit, time_filter, post_id, copy_to_clipboard, search_string, exclude_user, max_posts):
     options = {
         "subreddit": subreddit,
         "post_id": post_id,
         "time_filter": time_filter,
         "search_string": search_string,        
         'exclude_user': exclude_user,
-        'copy_to_clipboard': copy_to_clipboard
+        'copy_to_clipboard': copy_to_clipboard,
+        'max_posts': max_posts
     }
     logger.info(
         f"Scraping subreddit with the following options: {options}"
@@ -135,8 +115,11 @@ def main(subreddit, time_filter, post_id, copy_to_clipboard, search_string, excl
         raise click.UsageError("You must provide either --subreddit or --post_id")
     if post_id:
         comments = scrape_single_post(post_id, exclude_user)
-    else:
-        comments = search_subreddit(subreddit, time_filter, search_string, exclude_user)
+    elif subreddit:
+        if not search_string:
+            raise click.UsageError("You must provide a search string when searching a subreddit via --search_string")
+            
+        comments = search_subreddit(subreddit, time_filter, search_string, exclude_user, max_posts)
     logger.info(f"Done scraping. Found {len(comments)} comments")
 
     print(str(comments))
