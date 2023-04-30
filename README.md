@@ -22,7 +22,7 @@ source ai.py.venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Running the Scraper
+# Reddit Scraper
 
 You can run the scraper using the following command:
 
@@ -45,6 +45,19 @@ python scrape_reddit.py --post_id "your_post_id"
 
 Replace `your_post_id` with the ID of the post you want to scrape.
 
+### Example
+```bash
+(ai.py.venv) ➜  ai.py git:(main) ✗ python3 scrape_reddit.py --post_id 130mgyl --exclude_user whoop_official  --copy_to_clipboard
+2023-04-30T19:28:15Z - INFO - Scraping subreddit None with time filter week and search string None
+2023-04-30T19:28:15Z - INFO - Scraping post with ID 130mgyl
+2023-04-30T19:28:18Z - INFO - Number of comments for : WHOOP x Reddit Ask Us Anything: Strength Trainer 💪 313
+2023-04-30T19:28:18Z - INFO - Found total comments 241
+2023-04-30T19:28:18Z - INFO - Done scraping. Found 241 comments
+
+["It would also be pretty cool if they added it as its own separate category for progress tracking even though it has nothing to do with the wearable itself. I weigh myself daily as I'm always either cutting or bulking and like to see where I'm at with specific calorie intake."...
+
+2023-04-30T19:35:20Z - INFO - Copied 241 comments to your clipboard. You can CNTRL+V them now
+```
 ## Deactivating the Virtual Environment
 
 When you're done using the scraper, deactivate the virtual environment with the following command:

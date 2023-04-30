@@ -4,7 +4,7 @@ import time
 # Set up logging configuration
 logging.basicConfig(
     # Set the logging level to display messages at or above DEBUG level
-    level=logging.DEBUG,
+    level=logging.INFO,
     # Format the log messages to include the timestamp, log level, and message
     format="%(asctime)s - %(levelname)s - %(message)s",
     # Use a custom timestamp format in UTC (ISO 8601 format)

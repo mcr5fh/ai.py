@@ -25,8 +25,6 @@ reddit = praw.Reddit(
     client_id=reddit_client_id, client_secret=reddit_secret, user_agent=reddit_user_agent
 )
 
-options = {}
-
 def get_post_info(post):
     details = {
         "id": post.id,
@@ -45,14 +43,14 @@ def get_post_info(post):
     return details
 
 
-def scrape_single_post(post_id):
+def scrape_single_post(post_id, exclude_user):
     logger.info(f"Scraping post with ID {post_id}")
 
     post = reddit.submission(id=post_id)
-    comments = parse_comments(post)
+    comments = parse_comments(post, exclude_user)
     return comments
 
-def search_subreddit(subreddit_name, time_filter, search_string, search_limit=100):
+def search_subreddit(subreddit_name, time_filter, search_string, exclude_user, search_limit=100):
     subreddit = reddit.subreddit(subreddit_name)
     # These are lazily loaded
     search_results = subreddit.search(
@@ -79,8 +77,7 @@ def analyze_post(post):
     feedback = []
 
 
-def parse_comments(post):
-    global options
+def parse_comments(post, exclude_user):
     post.comments.replace_more(limit=None)
     comments = post.comments.list()
     comment_list = []
@@ -89,7 +86,7 @@ def parse_comments(post):
         if isinstance(comment, MoreComments):
             logger.debug("Got a MoreComments")
             continue
-        if options['exclude_user'] and comment.author and comment.author.name == options['exclude_user']:
+        if exclude_user and comment.author and comment.author.name == exclude_user:
             logger.debug(f"Ignoring comment from {comment.author.name}")
             continue
         #         print(comment.id)  # to make it non-lazy
@@ -119,31 +116,33 @@ def summarize_feedback(feedback):
     help="Time filter for the search (default: week)",
 )
 @click.option("--post_id", help="Post ID to scrape")
+@click.option("--copy_to_clipboard", is_flag=True, help="copy the comments to your clipboard")
 @click.option("--search_string", default=None, help="Search string (optional)")
 @click.option('--exclude_user', default=None, help='Exclude comments from a specific user (optional)')
-def main(subreddit, time_filter, post_id, search_string, exclude_user):
-    global options
+def main(subreddit, time_filter, post_id, copy_to_clipboard, search_string, exclude_user):
     options = {
         "subreddit": subreddit,
         "post_id": post_id,
         "time_filter": time_filter,
         "search_string": search_string,        
         'exclude_user': exclude_user,
-
+        'copy_to_clipboard': copy_to_clipboard
     }
     logger.info(
-        f"Scraping subreddit {options['subreddit']} with time filter {options['time_filter']} and search string {options['search_string']}"
+        f"Scraping subreddit with the following options: {options}"
     )
     if not subreddit and not post_id:
         raise click.UsageError("You must provide either --subreddit or --post_id")
     if post_id:
-        comments = scrape_single_post(post_id)
+        comments = scrape_single_post(post_id, exclude_user)
     else:
-        comments = search_subreddit(subreddit, time_filter, search_string)
-    logger.info(f"Done scraping")
+        comments = search_subreddit(subreddit, time_filter, search_string, exclude_user)
+    logger.info(f"Done scraping. Found {len(comments)} comments")
 
-    pyperclip.copy(str(comments))
-
+    print(str(comments))
+    if copy_to_clipboard:
+        pyperclip.copy(str(comments))
+        logger.info(f"Copied {len(comments)} comments to your clipboard. You can CNTRL+V them now")
 
 if __name__ == "__main__":
     main()
